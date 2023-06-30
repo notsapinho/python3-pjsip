@@ -3650,10 +3650,10 @@ static PyObject *py_pjsua_call_xfer_replaces(PyObject *pSelf, PyObject *pArgs)
 /*
  * py_pjsua_call_dial_dtmf
  */
-static PyObject *py_pjsua_call_dial_dtmf(PyObject *pSelf, PyObject *pArgs)
+static PyObject* py_pjsua_call_dial_dtmf(PyObject* pSelf, PyObject* pArgs)
 {    	
     int call_id;
-    PyObject *pDigits;
+    PyObject* pDigits;
     pj_str_t digits;
     int status;
 
@@ -3664,12 +3664,37 @@ static PyObject *py_pjsua_call_dial_dtmf(PyObject *pSelf, PyObject *pArgs)
     }
 
     if (!PyBytes_Check(pDigits))
-	return Py_BuildValue("i", PJ_EINVAL);
+        return Py_BuildValue("i", PJ_EINVAL);
 
-    digits = PyUnicode_ToPJ(pDigits);
+    const char* str = StrToPj(Utf8DecodeUni(PyBytes_AsString(pDigits)));
+    digits = pj_str((char*)str); 
     status = pjsua_call_dial_dtmf(call_id, &digits);
-    
+
     return Py_BuildValue("i", status);
+}
+
+const char* StrToPj(const char* str)
+{
+#ifdef _UNICODE
+    // Convert UTF-16 to UTF-8
+    return Utf8EncodeUcs2(reinterpret_cast<const WCHAR*>(str));
+#else
+    // Copy the input string as it is
+    return str;
+#endif
+}
+
+const char* Utf8DecodeUni(const char* str)
+{
+#ifdef _UNICODE
+    // Convert UTF-8 to UTF-16
+    LPTSTR msg;
+    Utf8DecodeCP(str, CP_ACP, &msg);
+    return reinterpret_cast<const char*>(msg);
+#else
+    // Copy the input string as it is
+    return str;
+#endif
 }
 
 /*
