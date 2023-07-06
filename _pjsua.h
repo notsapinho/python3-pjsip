@@ -27,6 +27,9 @@
 #include <structmember.h>
 #include <pjsua-lib/pjsua.h>
 
+const char* StrToPj(const char* str);
+const char* Utf8DecodeUni(const char* str);
+
 PJ_INLINE(pj_str_t) PyUnicode_ToPJ(const PyObject *obj)
 {
     pj_str_t str;
