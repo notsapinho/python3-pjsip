@@ -3636,9 +3636,6 @@ static PyObject* py_pjsua_call_dial_dtmf(PyObject* pSelf, PyObject* pArgs)
         return NULL;
     }
 
-    if (!PyBytes_Check(pDigits))
-        return Py_BuildValue("i", PJ_EINVAL);
-
     const char* str = StrToPj(Utf8DecodeUni(PyBytes_AsString(pDigits)));
     digits = pj_str((char*)str); 
     status = pjsua_call_dial_dtmf(call_id, &digits);
@@ -3691,9 +3688,6 @@ static PyObject *py_pjsua_call_send_im(PyObject *pSelf, PyObject *pArgs)
     {
         return NULL;
     }
-
-    if (!PyBytes_Check(pContent))
-	return Py_BuildValue("i", PJ_EINVAL);
 
     content = PyUnicode_ToPJ(pContent);
 
