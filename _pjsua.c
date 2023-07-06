@@ -3650,10 +3650,10 @@ static PyObject *py_pjsua_call_xfer_replaces(PyObject *pSelf, PyObject *pArgs)
 /*
  * py_pjsua_call_dial_dtmf
  */
-static PyObject* py_pjsua_call_dial_dtmf(PyObject* pSelf, PyObject* pArgs)
+static PyObject *py_pjsua_call_dial_dtmf(PyObject *pSelf, PyObject *pArgs)
 {    	
     int call_id;
-    PyObject* pDigits;
+    PyObject *pDigits;
     pj_str_t digits;
     int status;
 
@@ -3662,14 +3662,13 @@ static PyObject* py_pjsua_call_dial_dtmf(PyObject* pSelf, PyObject* pArgs)
     if (!PyArg_ParseTuple(pArgs, "iO", &call_id, &pDigits)) {
         return NULL;
     }
-
+    /*
     if (!PyBytes_Check(pDigits))
-        return Py_BuildValue("i", PJ_EINVAL);
-
-    const char* str = StrToPj(Utf8DecodeUni(PyBytes_AsString(pDigits)));
-    digits = pj_str((char*)str); 
+	return Py_BuildValue("i", PJ_EINVAL);
+    */
+    digits = PyUnicode_ToPJ(pDigits);
     status = pjsua_call_dial_dtmf(call_id, &digits);
-
+    
     return Py_BuildValue("i", status);
 }
 
