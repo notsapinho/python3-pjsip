@@ -273,7 +273,7 @@ class UAConfig:
     def _cvt_to_pjsua(self):
         cfg = _pjsua.config_default()
         cfg.max_calls = self.max_calls
-        cfg.thread_cnt = 0
+        cfg.thread_cnt = 1
         cfg.nameserver = self.nameserver
         cfg.stun_domain = self.stun_domain
         cfg.stun_host = self.stun_host
@@ -2153,8 +2153,6 @@ class Lib:
     """Library instance.
     
     """
-    _quit = False
-    _has_thread = False
     _lock = None
 
     def __init__(self):
@@ -2220,30 +2218,15 @@ class Lib:
     def destroy(self):
         """Destroy the library, and pjsua."""
         global _lib
-        if self._has_thread:
-            self._quit = 1
-            loop = 0
-            while self._quit != 2 and loop < 400:
-                self.handle_events(5)
-                loop = loop + 1
-                time.sleep(0.050)
         _pjsua.destroy()
         _lib = None
 
-    def start(self, with_thread=True):
+    def start(self):
         """Start the library. 
-
-        Keyword argument:
-        with_thread -- specify whether the module should create worker
-                       thread.
-
         """
         lck = self.auto_lock()
         err = _pjsua.start()
         self._err_check("start()", self, err)
-        self._has_thread = with_thread
-        if self._has_thread:
-            _thread.start_new(_worker_thread_main, (0,))
 
     def handle_events(self, timeout=50):
         """Poll the events from underlying pjsua library.
@@ -2937,20 +2920,6 @@ def _cb_on_typing(call_id, from_uri, to, contact, is_typing, acc_id):
 
 def _cb_on_mwi_info(acc_id, body):
     _lib._cb_on_mwi_info(acc_id, body)
-
-# Worker thread
-def _worker_thread_main(arg):
-    global _lib
-    _Trace(('worker thread started..',))
-    thread_desc = 0;
-    err = _pjsua.thread_register("python worker", thread_desc)
-    _lib._err_check("thread_register()", _lib, err)
-    while _lib and _lib._quit == 0:
-        _lib.handle_events(1)
-    time.sleep(0.050)
-    if _lib:
-        _lib._quit = 2
-    _Trace(('worker thread exited..',))
 
 def _Trace(args):
     global enable_trace
