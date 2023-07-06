@@ -3672,30 +3672,6 @@ static PyObject *py_pjsua_call_dial_dtmf(PyObject *pSelf, PyObject *pArgs)
     return Py_BuildValue("i", status);
 }
 
-const char* StrToPj(const char* str)
-{
-#ifdef _UNICODE
-    // Convert UTF-16 to UTF-8
-    return Utf8EncodeUcs2(reinterpret_cast<const WCHAR*>(str));
-#else
-    // Copy the input string as it is
-    return str;
-#endif
-}
-
-const char* Utf8DecodeUni(const char* str)
-{
-#ifdef _UNICODE
-    // Convert UTF-8 to UTF-16
-    LPTSTR msg;
-    Utf8DecodeCP(str, CP_ACP, &msg);
-    return reinterpret_cast<const char*>(msg);
-#else
-    // Copy the input string as it is
-    return str;
-#endif
-}
-
 /*
  * py_pjsua_call_send_im
  */
